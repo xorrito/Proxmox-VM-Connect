@@ -131,7 +131,7 @@ after_vimid=$(echo $after_vimid | cut -f1 -d"]")
 
 # Split the string by commas and select the 3rd element (index 2)
 IFS=', ' read -r -a status <<< "$after_vimid"
-STATUS=$(echo "${status[2]}")
+STATUS=$(echo "${status[2]}" | sed 's/"//g')
 
 # Print the status
 echo "Status for entry "$VMID": $STATUS"
@@ -140,7 +140,8 @@ echo "Status for entry "$VMID": $STATUS"
 while [ "$STATUS" = "stopped" ]; do
   echo "VM is stopped, starting."
   curl -f -s -S -k -X POST -b "PVEAuthCookie=$TICKET" -H "CSRFPreventionToken: $CSRF" "https://$PROXY:8006/api2/json/nodes/$NODE/qemu/$VMID/status/start" 
-  
+  echo ""
+  echo "Sleeping for 5s to allow VM to start."
   sleep 5s
   
   echo "Checking Status of VM"
